@@ -17,6 +17,13 @@ extern int create_client(char *serverip,int port);
 ********************************************************/
 extern int create_server(char *bindip,int port);
 
+extern int GetsockRecvSize(int sock,int *size);
+extern int GetsockSendSize(int sock,int *size);
+extern int SetsockRecvSize(int sock,int size);
+extern int SetsockSendSize(int sock,int size);
+extern int Setnoblock(int sockfd,int blocking);
+extern int SetTcpNoDelay(int sockfd);
+
 extern struct hostent *timeGesthostbyname(char *hostname,int timeout);
 extern int checkNetwork(int timeout);
 //获取网卡的IP地址

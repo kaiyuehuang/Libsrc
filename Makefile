@@ -17,7 +17,6 @@ all +=pool/pthread_pool.o
 all +=aes128/aes_demo.o
 all +=file/fileMes.o
 
-#all +=worklist/queWorkMsg.o
 all +=worklist/queWorkCond.o
 
 all +=cjson/cJSON.o
@@ -34,7 +33,6 @@ INC +=net/udp/udp_sock.h
 INC +=file/fileMes.h
 INC +=cjson/cJSON.h
 INC +=voices/head_mp3.h
-#INC +=worklist/queWorkMsg.h
 INC +=worklist/queWorkCond.h
 INC +=tools/tools.h
 

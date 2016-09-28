@@ -160,4 +160,59 @@ int create_server(char *bindip,int port)
 	return listenfd;
 }
 #endif
+static int GetsockOpt(int sock,int optname, int *size){
+    socklen_t optlen = sizeof(int);
+    int err = getsockopt(sock, SOL_SOCKET, optname, size, &optlen);
+    if(err<0){
+        printf("getsockopt failed \n");
+        return -1;
+    }
+    return 0;
+}
 
+int GetsockRecvSize(int sock,int *size){
+	return GetsockOpt(sock,SO_RCVBUF, size);
+}
+int GetsockSendSize(int sock,int *size){
+	return GetsockOpt(sock,SO_SNDBUF, size);
+}
+
+static int SetsockOpt(int sock,int optname, int size){
+    socklen_t optlen = sizeof(int);
+    int err = setsockopt(sock, SOL_SOCKET, optname, &size, &optlen);
+    if(err<0){
+        printf("getsockopt failed \n");
+        return -1;
+    }
+    return 0;
+}
+int SetsockRecvSize(int sock,int size){
+	return SetsockOpt(sock,SO_RCVBUF,size);
+}
+
+int SetsockSendSize(int sock,int size){
+	return SetsockOpt(sock,SO_SNDBUF,size);
+}
+int Setnoblock(int sockfd,int blocking){
+	int flags;
+	if ((flags = fcntl(sockfd, F_GETFL)) == -1) {
+		return -1;
+	}
+    if (blocking)
+        flags &= ~O_NONBLOCK;
+    else
+        flags |= O_NONBLOCK;
+
+    if (fcntl(sockfd, F_SETFL, flags) == -1) {
+    	return -1;
+    }
+    return 0;
+}
+int SetTcpNoDelay(int sockfd) {
+    int yes = 1;
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes)) == -1) {
+    	NET_DBG("setsockopt(TCP_NODELAY) failed");
+        return -1;
+    }
+    return 0;
+}
