@@ -392,13 +392,13 @@ d##3 = TD0(s##3) ^ TD1(s##2) ^ TD2(s##1) ^ TD3(s##0) ^ rk[4 * i + 3]
 }
 
 
-const u8 cipherKey[16]={88,126,21,22,40,174,21,16,71,247,21,16,9,27,79,60};
+static char cipherKey[16]={88,126,21,22,40,174,21,16,71,247,21,16,9,27,79,60};
 /*******************************************************
 函数功能: 对数据进行加密  
 参数:  src 需要加密的数据 dest 输出缓存区  len需要加密数据长度
 返回值: out_size 返回加密数据之后的长度
 ********************************************************/
-int aes_en_char(const char *src,char *dest,int len)
+int aes_en_char(const char *src,char *dest,int srcLen,int *outLen)
 {	
 	int pos=0,i,j=0,out_size;
 	j = len/16;
@@ -416,9 +416,10 @@ int aes_en_char(const char *src,char *dest,int len)
 	}else{
 		out_size = len;
 	}
-	return out_size;
+	*outLen = out_size;
+	return 0;
 }
-int aes_de_char(const char *src,char *dest,int len)
+int aes_de_char(const char *src,char *dest,int srcLen,int *outLen)
 {	
 	int pos=0,i,j=0,out_size;
 	j = len/16;
@@ -436,9 +437,13 @@ int aes_de_char(const char *src,char *dest,int len)
 	}else{
 		out_size = len;
 	}
-	return out_size;
+	*outLen = out_size;
+	return 0;
 }
-
+void setKey(char *key){
+	snprintf((char *)cipherKey,16,"%s",key);
+	//printf("set Key = %s\n",cipherKey);
+}
 #if 0
 typedef struct test
 {
@@ -457,12 +462,12 @@ void test_strcut(void)
 	strcpy(pdata.data,"testaec");	
 	char en_out[100];
 	memset(en_out,0,len); 
-    aec_en_char((const char *)&pdata,(char *)en_out,len);
+    	aes_en_char((const char *)&pdata,(char *)en_out,len);
 	
 	printf("en_out size = %d\n",strlen(en_out));
 	aeclist de_out;
-	memset(&de_out,0,len); 
-    aec_de_char((const char *)en_out,(char *)&de_out,len);
+	memset(&de_out,0,len);
+    	aes_de_char((const char *)en_out,(char *)&de_out,len);
 
 	printf("de_out.data = %s a=%d b=%d\n",de_out.data,de_out.a,de_out.b);
 }
@@ -477,7 +482,8 @@ int main(int argc, char *argv[])
       memset(c_text,0,32);
       int len = strlen(p_text);	
       
-      aec_en_char((const char *)p_text,c_text,len);
+      setKey("abc"); 
+      aes_en_char((const char *)p_text,c_text,len);
       printf("\nData before encrypt is:\n");
 
       printf("%s \n",p_text);
@@ -486,7 +492,7 @@ int main(int argc, char *argv[])
       char p_src[32];
       memset(p_src,0,32);
 
-      aec_de_char((const char *)c_text,p_src,len);
+      aes_de_char((const char *)c_text,p_src,len);
 
       printf("\ndata after decrypt is:\n");
       printf("%s\n", p_src);
