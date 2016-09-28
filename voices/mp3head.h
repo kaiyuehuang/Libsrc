@@ -62,10 +62,18 @@ struct mp3_frame {
     int size;  
     const unsigned char *data;  
 };  
+
+typedef struct{
+	unsigned short rate;
+	unsigned char channel;
+	int samplingRate;
+	int bitrate;
+}Mp3_t;
   
 // 解析一帧mp3数据  
-extern void get_mp3head(FILE *fp,unsigned short *rate,char *channel); 
-extern int Getmp3Steamer(char *mp3data,int length,unsigned short *rate,char *channel);
+extern Mp3_t *get_mp3head(FILE *fp); 
+extern Mp3_t *Getmp3Steamer(char *mp3data,int length);
+extern int getmp3Toalltime(int bitrate,int fileLen);
 
   
 #endif // _MP3_H_  

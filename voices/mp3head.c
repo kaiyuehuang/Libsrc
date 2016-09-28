@@ -168,41 +168,45 @@ static int getMp3Frame(struct mp3_frame * frame,uint32_t hdr)
 ***********************************************************/ 
 static int getNextFrame(FILE * mp3fp, struct mp3_frame * frame)  
 {  
-    uint32_t hdr;     
-    int ret;  
-    while (1){  
-        ret = READ_UINT32(mp3fp, &hdr);  
-        if (ret < 0)  
-            break;  
-        if (checkHdr(hdr))  
-            break;  
-        fseek(mp3fp, -3, 1);  
-    } 
+    	uint32_t hdr;     
+    	int ret;  
+    	while (1){  
+        	ret = READ_UINT32(mp3fp, &hdr);  
+        	if (ret < 0)  
+            		break;  
+        	if (checkHdr(hdr))  
+            		break;  
+        	fseek(mp3fp, -3, 1);  
+    	} 
       
 	if(getMp3Frame(frame,hdr))
 	{
 		ret=-1;
 	}
-    fseek(mp3fp, 0, SEEK_SET);  
+    	fseek(mp3fp, 0, SEEK_SET);  
   
-    return ret;  
+    	return ret;  
 }  
 
 /*****************************************************
 获取采样率和通道数rate:采样率channel:通道
 *****************************************************/
-void get_mp3head(FILE *fp,unsigned short *rate,char *channel)
+Mp3_t *get_mp3head(FILE *fp)
 {
+	Mp3_t mp3,*mp=&mp3;
+	memset(mp,0,sizeof(Mp3_t));
 	if(fp ==NULL){
-		return ;
+		return mp;
 	}
 	struct mp3_frame pframe;
-    getNextFrame(fp,&pframe);    
-	*rate = pframe.samplingRate;
-    if(pframe.channel == 0x03)
-		*channel = 1;
-    else
-		*channel = 2;
+    	getNextFrame(fp,&pframe);    
+	mp->rate = pframe.samplingRate;
+	mp->bitrate = pframe.bitrate*1000;
+    	if(pframe.channel == 0x03)
+		mp->channel = 1;
+    	else
+		mp->channel = 2;
+	return mp;
 }
 
 static int READ_8(char * data, uint32_t * v)  
@@ -271,31 +275,37 @@ static int getFramedata(char *data, int length,struct mp3_frame * frame)
     return getMp3Frame(frame, hdr);  
 }  
 
-int Getmp3Steamer(char *mp3data,int length,unsigned short *rate,char *channel)
+Mp3_t *Getmp3Steamer(char *mp3data,int length)
 {
+	Mp3_t mp3,*mp=&mp3;
 	struct mp3_frame pframe;
 	memset(&pframe,0,sizeof(struct mp3_frame));
-    if(getFramedata(mp3data,length,&pframe))    
-    {
-		*channel = 0;
-		*rate = 0;
-		return -1;
+	memset(mp,0,sizeof(Mp3_t));
+    	if(getFramedata(mp3data,length,&pframe))    
+    	{
+		return mp;
 	}
-	*rate = pframe.samplingRate;
-    if(pframe.channel == 0x03)
-		*channel = 1;
-    else
-		*channel = 2;
-	return 0;
+	mp->rate = pframe.samplingRate;
+    	mp->bitrate = pframe.bitrate*1000;
+	
+	if(pframe.channel == 0x03)
+		mp->channel = 1;
+    	else
+		mp->channel = 2;
+	
+	return mp;
 }
 
+int getmp3Toalltime(int bitrate,int fileLen)
+{
+	return fileLen/bitrate*8;
+}
 
 #if 0
 int main(int argc,char **argv)
 {
 	if(argc<2)
-	
-{
+	{
 		printf("please input music file\n");
 		return -1;
 	}
@@ -305,27 +315,15 @@ int main(int argc,char **argv)
 		perror("open failed\n");
 		return -1;
 	}
-	int pos = ftell(fp);
-	printf("cur pos = %d\n",pos);
-	unsigned short rate=0;
-	char channel=0;
-	get_mp3head(fp,&rate,&channel);
-	pos = ftell(fp);
-	printf("\ncur pos = %d\n",pos);
+	Mp3_t *mp3 = get_mp3head(fp);
+	printf("This song samplingRate is %dHz channel %d bitrate =%d\n",mp3->rate,mp3->channel,mp3->bitrate);
 	fclose(fp);
-	printf("This song samplingRate is %dHz channel %d\n",rate,channel);
 
-
-	char mp3data[100]={0};
+	char mp3data[3000]={0};
 	fp = fopen(argv[1],"r");
-	pos = ftell(fp);
-	printf("\ncur pos = %d\n",pos);
-
-	fread(mp3data,100,1,fp);
-	rate=0;
-	channel=0;
-	Getmp3Steamer(mp3data,100,&rate,&channel);
-	printf("\nThis song samplingRate is %dHz channel %d\n",rate,channel);
+	fread(mp3data,3000,1,fp);
+	mp3 = Getmp3Steamer(mp3data,3000);
+	printf("\nThis song samplingRate is %dHz channel %d bitrate =%d\n",mp3->rate,mp3->channel,mp3->bitrate);
 	fclose(fp);
 	return 0;
 }
