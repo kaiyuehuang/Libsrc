@@ -10,4 +10,8 @@ extern void init_interface(void pasreInputCmd(const char *inputCmd));
 */
 extern int serial_open(char *serial,int speed);
 
+extern int u2g(char *inbuf,int inlen,char *outbuf,int outlen);
+
+extern int g2u(char *inbuf,size_t inlen,char *outbuf,size_t outlen);
+
 #endif
