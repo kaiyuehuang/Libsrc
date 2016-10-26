@@ -25,6 +25,7 @@ all +=voices/mp3head.o
 
 all +=tools/InputCmd.o
 all +=tools/serial.o
+all +=tools/gbk_uf8.o
 
 INC +=pool/pool.h
 INC +=aes128/aes_demo.h
