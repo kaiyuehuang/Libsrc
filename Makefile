@@ -1,11 +1,23 @@
-#CROSS_COMPILE	=mipsel-linux-
-#CC=$(CROSS_COMPILE)gcc
+#TARGET_ARCH=x86
+TARGET_ARCH=mips463
+
+ifeq ($(TARGET_ARCH), mips342)
+CROSS_COMPILE	=/opt/buildroot-gcc342/bin/mipsel-linux-
+TAR = libbase342.so
+else ifeq ($(TARGET_ARCH), mips463)
+CROSS_COMPILE   =/opt/buildroot-gcc463/usr/bin/mipsel-linux-
+TAR = libbase463.so
+else ifeq ($(TARGET_ARCH), x86)
+TAR=libbase.so
+endif
+
+CC=$(CROSS_COMPILE)gcc
+
 STRIP=$(CROSS_COMPILE)strip	
 CC=$(CROSS_COMPILE)gcc
 
 CFLAGS = -Wall -fPIC -shared 
 
-TAR = $(TAR_V)
 
 all +=net/tcpsrv/sock_fd.o
 all +=net/tcpsrv/getwanip.o
@@ -25,8 +37,10 @@ all +=voices/mp3head.o
 
 all +=tools/InputCmd.o
 all +=tools/serial.o
-all +=tools/gbk_uf8.o
 
+ifeq ($(TARGET_ARCH), x86)
+all +=tools/gbk_uf8.o
+endif
 INC +=pool/pool.h
 INC +=aes128/aes_demo.h
 INC +=net/tcpsrv/demo_tcp.h
@@ -39,6 +53,7 @@ INC +=tools/tools.h
 
 export CC
 $(TAR): $(all)
+	@echo "sss" 
 	$(CC) $(CFLAGS) $(all) -o $(TAR) -lpthread -lm
 #	$(STRIP)  $(TAR) 
 	cp $(INC) output/

@@ -1,20 +1,23 @@
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
-#include  <sys/types.h>      /* basic system data types */
-#include  <sys/socket.h>     /* basic socket definitions */
-#include  <netinet/in.h>      /* sockaddr_in{} and other Internet defns */
-#include  <arpa/inet.h>       /* inet(3) functions */
+#include <sys/types.h>      /* basic system data types */
+#include <sys/socket.h>     /* basic socket definitions */
+#include <netinet/in.h>      /* sockaddr_in{} and other Internet defns */
+#include <arpa/inet.h>       /* inet(3) functions */
 #include <sys/resource.h> /*setrlimit */
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-#include<signal.h>   
+#include <signal.h>   
 #include <setjmp.h>
 #include <time.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/tcp.h>
 
 #include "sock_fd.h"
 #include "config.h"
@@ -211,7 +214,7 @@ int Setnoblock(int sockfd,int blocking){
 int SetTcpNoDelay(int sockfd) {
     int yes = 1;
     if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes)) == -1) {
-    	NET_DBG("setsockopt(TCP_NODELAY) failed");
+    	//NET_DBG("setsockopt(TCP_NODELAY) failed");
         return -1;
     }
     return 0;

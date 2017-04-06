@@ -401,20 +401,20 @@ static char cipherKey[16]={88,126,21,22,40,174,21,16,71,247,21,16,9,27,79,60};
 int aes_en_char(const char *src,char *dest,int srcLen,int *outLen)
 {	
 	int pos=0,i,j=0,out_size;
-	j = len/16;
+	j = srcLen/16;
 	for(i=0; i<j; i++)
 	{
     		aes_encrypt((unsigned char *)(src+pos),(unsigned char *)(dest+pos),cipherKey,16);
 		pos+=16;	
 	}
-	j=len%16;
+	j=srcLen%16;
 	if(j!=0)
 	{
 		//printf("pos = %d  j = %d\n",pos,16);
     		aes_encrypt((unsigned char *)src+pos,(unsigned char *)dest+pos,cipherKey,16);
-		out_size = len+16-j;
+		out_size = srcLen+16-j;
 	}else{
-		out_size = len;
+		out_size = srcLen;
 	}
 	*outLen = out_size;
 	return 0;
@@ -422,20 +422,20 @@ int aes_en_char(const char *src,char *dest,int srcLen,int *outLen)
 int aes_de_char(const char *src,char *dest,int srcLen,int *outLen)
 {	
 	int pos=0,i,j=0,out_size;
-	j = len/16;
+	j = srcLen/16;
 	for(i=0; i<j; i++)
 	{
     		aes_decrypt((unsigned char *)(src+pos),(unsigned char *)dest+pos,cipherKey,16);
 		pos+=16;	
 	}
-	j=len%16;
+	j=srcLen%16;
 	if(j!=0)
 	{
 		//printf("pos = %d  j = %d\n",pos,j);
 		aes_decrypt((unsigned char *)src+pos,(unsigned char *)dest+pos,cipherKey,16);
-		out_size = len+16-j;
+		out_size = srcLen+16-j;
 	}else{
-		out_size = len;
+		out_size = srcLen;
 	}
 	*outLen = out_size;
 	return 0;
