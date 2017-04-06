@@ -13,8 +13,7 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 
-void init_addr(struct sockaddr_in *addr, char *ip,  int port)
-{
+void init_addr(struct sockaddr_in *addr, char *ip,  int port){
 	 addr->sin_family = AF_INET;
 	  
 	 addr->sin_port = htons(port);
@@ -153,3 +152,35 @@ int create_listen_brocast(char *ipaddr,int port)
 	}
 	return fd;
 }
+
+int Create_destIpSendBrocast(const char *ipaddress,int port,struct sockaddr_in *addrServer){
+        if(ipaddress==NULL){
+                return -1; 
+        }
+        int sockClient  = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        if (sockClient<0){
+                printf ("socket create failed. ip=[%s] \n ", ipaddress);
+                return  -1; 
+        }
+        int bBroadcast = 1;
+        if (0 != setsockopt ( sockClient,SOL_SOCKET,SO_BROADCAST, (char *)&bBroadcast, sizeof(int))){
+                printf ("setsockopt failed. ip=[%s] ", ipaddress);
+                goto exit0;
+        }
+        struct sockaddr_in addrClient   = {0};
+        addrClient.sin_family   = AF_INET;
+        addrClient.sin_addr.s_addr      = inet_addr(ipaddress);
+        addrClient.sin_port     = 0;    //
+        if (0 != bind (sockClient, (struct sockaddr*)&addrClient, sizeof(addrClient))){
+                printf ("bind failed.ip=[%s] \n", ipaddress);
+                goto exit0;
+        }
+        addrServer->sin_family = AF_INET;
+        addrServer->sin_addr.s_addr = htonl ( INADDR_BROADCAST );
+        addrServer->sin_port = htons (port);
+        return sockClient;
+exit0:
+        close(sockClient);
+        return  -1;
+}
+
